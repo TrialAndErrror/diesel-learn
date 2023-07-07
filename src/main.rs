@@ -14,16 +14,18 @@ fn help() {
     println!("Enter 'n' for new record or 'x' for checking off a record");
 }
 
+pub fn establish_connection() -> PgConnection {
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    PgConnection::establish(&database_url)
+        .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
+}
 
 fn main() {
     let args: Vec<String> = env::args().collect();
+    let mut connection = &mut establish_connection();
 
     match args.len() {
         1 => {
-            let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-            let mut connection = PgConnection::establish(&database_url)
-                .expect(&format!("Error connecting to {}", database_url));
-
             list(&mut connection)
         },
         2 => {
@@ -44,8 +46,18 @@ fn main() {
     }
 }
 
-fn list(_connection: &mut PgConnection) {
-    println!("Please enter a command: 'n' for new record or 'x' to check off a record");
+fn list(connection: &mut PgConnection) {
+    let results = grocery::dsl::grocery
+        .filter(grocery::done.eq(false))
+        .limit(5)
+        .select(Grocery::as_select())
+        .load(connection)
+        .expect("Error loading posts");
+
+    println!("Displaying all ({}) groceries", results.len());
+    for grocery in results {
+        println!("- [{}] {}: {}", grocery.id, grocery.name, grocery.amount);
+    }
 }
 
 
@@ -74,9 +86,11 @@ fn create(connection: &mut PgConnection) {
 }
 
 fn mark_complete(connection: &mut PgConnection) {
+    list(connection);
+
     let mut grocery_id_string = String::new();
 
-    println!("What is the ID of the grocery?");
+    println!("What is the ID of the grocery to check off?");
     stdin().read_line(&mut grocery_id_string).unwrap();
     let grocery_id_string = grocery_id_string.trim_end(); // Remove the trailing newline
 

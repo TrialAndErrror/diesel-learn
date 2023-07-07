@@ -82,3 +82,13 @@ Got stuck messing around with diesel and container stuff, but overall if you're 
 Let's parse some args from the command line so we can have two separate functions from the CLI
 
 # Parse Args
+Added in some simple arg parsing; just needs to match a particular string to get the command started
+`cargo run n`
+`cargo run x`
+
+
+In order to run these in the container, we can fire up the commands using docker compose: `docker compose run diesel-learn cargo run <args>`
+
+I also added in the list function (if called with no args, you get the list of ids) in as the default handler, and have it print the list when you go to mark an item as updated.
+
+Could probably add in a second argument slot for the specific ID to update, for the update command, that way you can skip prompting the user for info. Also could have a flag on the create function to directly pass in arguments.
