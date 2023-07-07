@@ -5,8 +5,8 @@ mod schema;
 
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
-use models::*;
-use schema::*;
+use models::{Grocery, NewGrocery};
+use schema::grocery;
 use std::env;
 
 fn main() {
@@ -19,26 +19,27 @@ fn main() {
 }
 
 fn create(connection: &mut PgConnection) {
-    let new_log = NewTodo {
-        text: "Create todo application".to_string(),
+    let new_log = NewGrocery {
+        name: "New Grocery Item".to_string(),
+        amount: "One Item, Please".to_string()
     };
 
-    let inserted_row = diesel::insert_into(todos::table)
+    let inserted_row = diesel::insert_into(grocery::table)
         .values(&new_log)
-        .get_result::<Todo>(connection);
+        .get_result::<Grocery>(connection);
 
     println!("{:?}", inserted_row);
 }
 
 fn finish(connection: &mut PgConnection) {
-    let todos = todos::dsl::todos.filter(todos::done.eq(false).and(todos::id.eq(1)));
+    let groceries = grocery::dsl::grocery.filter(grocery::done.eq(false).and(grocery::id.eq(1)));
 
-    let updated_row = diesel::update(todos)
+    let updated_row = diesel::update(groceries)
         .set((
-            todos::done.eq(true),
-            todos::finish_timestamp.eq(Some(chrono::Utc::now())),
+            grocery::done.eq(true),
+            grocery::finish_timestamp.eq(Some(chrono::Utc::now())),
         ))
-        .get_result::<Todo>(connection);
+        .get_result::<Grocery>(connection);
 
     println!("{:?}", updated_row);
 }
