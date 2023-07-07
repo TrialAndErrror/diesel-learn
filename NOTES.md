@@ -55,7 +55,24 @@ For Groceries, we're starting with changing the todo into a grocery. Let's start
 
 On the `ToDo` model, there is a String field used for holding text of a ToDo. For Groceries, we want to capture `name` and `amount` for each Grocery entry. I chose to use owned String values as the fields to represent these data points. We could make `amount` a numeric type, probably an unsigned int or float would work for most things. But I used a String so that the user can enter in any measurement notes or units along with their numbers, to make things clearer. i.e. (Bagels: "2-4") or (Flour: "6 cups").
 
-To implement this change, We change the `Todo` struct to be named `Grocery` and we want to change a few fields. Instead of `text`, I want to have a name for the grocery and an amount. They're both freeform string fields, so we just use owned `String` fields here to get it up and running. We update the `NewTodo` to reflect the fields we need to take in from the user, `name` and `amount`. Finally, we look at the schema and need to update the 
+To implement this change, We change the `Todo` struct to be named `Grocery` and we want to change a few fields. Instead of `text`, I want to have a name for the grocery and an amount. They're both freeform string fields, so we just use owned `String` fields here to get it up and running. We update the `NewTodo` to reflect the fields we need to take in from the user, `name` and `amount`. Finally, we look at the schema and need to use diesel to generate a new schema for us.
 
+Having trouble, making sure that I'm actually creating the right table name in the migrations files.dock
 
+Turns out, I was having trouble installing some of the diesel dependencies because of a missing C library. Funny enough, it's because i'm using cargo and rust tooling from a nix package, and they don't include extra stuff that most people might not need. But, of course, there's a diesel-cli package on nix as well, which is set up perfectly for running diesel. So we use `nix run nixpkgs#diesel-cli` for our diesel commands.
 
+However, this project provides a helpful docker container for running diesel commands inside your environment. Just run `docker compose run diesel-lean` to spin that up to a shell with your .env variables and diesel set up.
+
+`diesel setup` and then `diesel migration generate <migration_name>` gets you a pair of up and down migrations that you can edit to make sure your data is working.
+
+If you run a migration, and then want to change it, you need to `diesel migration redo` to unapply and reapply the changes. The reason you can't just do `run` again is that the database looks at the names of the migrations you have and says "I already ran those, i'm not going to look at them". So if you make changes, the DB won't apply those changes unless you remove and re-apply the migration. 
+
+Had to go into the backend and check on the database, turns out it's harder to get in using docker compose than just the dockerfile itself. UIse `docker exec -ti databasel-diesel /bin/bash`, 
+
+Once into the pg container you can use `psql -U diesel` to log into psql as the diesel user that we defined in other files. Use `\d <table_name>` to view the info of your table. You should see the fields properly configured.
+
+# Input and Output
+Now let's figure out how to get some data into the database. I made some changes to the main.rs to use our new structs from the models file. New Grocery derives Insertable to handle being able to insert new records using this struct.
+Schema.rs should be be updated at this point, so take a look there and make sure the fields are what you wanted.
+
+Found some deprecation warnings and missing imports, so made the commits and moved on.
