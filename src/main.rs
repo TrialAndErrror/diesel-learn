@@ -29,10 +29,6 @@ fn main() {
             list(&mut connection)
         },
         2 => {
-            let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-            let mut connection = PgConnection::establish(&database_url)
-                .expect(&format!("Error connecting to {}", database_url));
-
             match args[1].parse() {
                 Ok('n') => create(&mut connection),
                 Ok('x') => mark_complete(&mut connection),
@@ -52,7 +48,7 @@ fn list(connection: &mut PgConnection) {
         .limit(5)
         .select(Grocery::as_select())
         .load(connection)
-        .expect("Error loading posts");
+        .expect("Error loading Groceries");
 
     println!("Displaying all ({}) groceries", results.len());
     for grocery in results {
@@ -60,8 +56,7 @@ fn list(connection: &mut PgConnection) {
     }
 }
 
-
-fn create(connection: &mut PgConnection) {
+fn create_grocery_prompts() -> (String, String) {
     let mut name = String::new();
     let mut amount = String::new();
 
@@ -73,9 +68,16 @@ fn create(connection: &mut PgConnection) {
     stdin().read_line(&mut amount).unwrap();
     let amount = amount.trim_end(); // Remove the trailing newline
 
+    (name.to_string(), amount.to_string())
+}
+
+
+fn create(connection: &mut PgConnection) {
+    let (name, amount)= create_grocery_prompts();
+
     let new_log = NewGrocery {
-        name: name.to_string(),
-        amount: amount.to_string()
+        name,
+        amount
     };
 
     let inserted_row = diesel::insert_into(grocery::table)
@@ -85,18 +87,24 @@ fn create(connection: &mut PgConnection) {
     println!("{:?}", inserted_row);
 }
 
-fn mark_complete(connection: &mut PgConnection) {
-    list(connection);
-
+fn check_off_grocery_prompts() -> i32 {
     let mut grocery_id_string = String::new();
 
     println!("What is the ID of the grocery to check off?");
     stdin().read_line(&mut grocery_id_string).unwrap();
-    let grocery_id_string = grocery_id_string.trim_end(); // Remove the trailing newline
+    grocery_id_string.trim_end().parse::<i32>().unwrap()
+}
 
-    let grocery_id = grocery_id_string.parse::<i32>().unwrap();
+fn mark_complete(connection: &mut PgConnection) {
+    list(connection);
 
-    let groceries = grocery::dsl::grocery.filter(grocery::done.eq(false).and(grocery::id.eq(grocery_id)));
+    let grocery_id= check_off_grocery_prompts();
+
+    let groceries = grocery::dsl::grocery
+        .filter(
+            grocery::done.eq(unfinished)
+                .and(grocery::id.eq(grocery_id))
+        );
 
     let updated_row = diesel::update(groceries)
         .set((
