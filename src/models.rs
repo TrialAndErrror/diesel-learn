@@ -10,7 +10,7 @@ pub struct NewGrocery {
 }
 
 #[derive(Debug, Queryable, Serialize)]
-pub struct Todo {
+pub struct Grocery {
     pub id: i32,
     pub name: String,
     pub amount: String,
