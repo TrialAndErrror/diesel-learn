@@ -20,7 +20,11 @@ fn main() {
 
     match args.len() {
         1 => {
-            println!("Please enter a command: 'n' for new record or 'x' to check off a record");
+            let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+            let mut connection = PgConnection::establish(&database_url)
+                .expect(&format!("Error connecting to {}", database_url));
+
+            list(&mut connection)
         },
         2 => {
             let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
@@ -40,8 +44,8 @@ fn main() {
     }
 }
 
-fn list(connection: &mut PgConnection) {
-
+fn list(_connection: &mut PgConnection) {
+    println!("Please enter a command: 'n' for new record or 'x' to check off a record");
 }
 
 
@@ -83,7 +87,6 @@ fn mark_complete(connection: &mut PgConnection) {
     let updated_row = diesel::update(groceries)
         .set((
             grocery::done.eq(true),
-            grocery::finish_timestamp.eq(Some(chrono::Utc::now())),
         ))
         .get_result::<Grocery>(connection);
 
