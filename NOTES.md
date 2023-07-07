@@ -67,7 +67,7 @@ However, this project provides a helpful docker container for running diesel com
 
 If you run a migration, and then want to change it, you need to `diesel migration redo` to unapply and reapply the changes. The reason you can't just do `run` again is that the database looks at the names of the migrations you have and says "I already ran those, i'm not going to look at them". So if you make changes, the DB won't apply those changes unless you remove and re-apply the migration. 
 
-Had to go into the backend and check on the database, turns out it's harder to get in using docker compose than just the dockerfile itself. UIse `docker exec -ti databasel-diesel /bin/bash`, 
+Had to go into the backend and check on the database, turns out it's harder to get in using docker compose than just the dockerfile itself. UIse `docker exec -ti database-diesel /bin/bash`, 
 
 Once into the pg container you can use `psql -U diesel` to log into psql as the diesel user that we defined in other files. Use `\d <table_name>` to view the info of your table. You should see the fields properly configured.
 
@@ -76,3 +76,9 @@ Now let's figure out how to get some data into the database. I made some changes
 Schema.rs should be be updated at this point, so take a look there and make sure the fields are what you wanted.
 
 Found some deprecation warnings and missing imports, so made the commits and moved on.
+
+Got stuck messing around with diesel and container stuff, but overall if you're able to run the docker container and then get shells in both services, you should be able to use `cargo run` in the diesel-learn service to create new records, and then go to the database-diesel service and get into psql and run `SELECT * FROM grocery;` to see all the records you're creating.
+
+Let's parse some args from the command line so we can have two separate functions from the CLI
+
+# Parse Args
