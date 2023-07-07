@@ -92,3 +92,7 @@ In order to run these in the container, we can fire up the commands using docker
 I also added in the list function (if called with no args, you get the list of ids) in as the default handler, and have it print the list when you go to mark an item as updated.
 
 Could probably add in a second argument slot for the specific ID to update, for the update command, that way you can skip prompting the user for info. Also could have a flag on the create function to directly pass in arguments.
+
+From here, we have the ability to create new groceries, check them off, and list all the data in the database. Basic functionality implemented!
+
+In the next branch, `conversion/add-rocket`, we will look at adding Rocket to get a basic web server that can handle get and post requests to our database. We will create some views and plop our handler functions into those views, and it should be able to handle backend and frontend in full stack rust!
