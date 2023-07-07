@@ -1,18 +1,19 @@
-use crate::schema::*;
 use diesel::prelude::*;
 use serde::Serialize;
 
 #[derive(Insertable)]
-#[table_name = "todos"]
-pub struct NewTodo {
-    pub text: String,
+#[diesel(table_name = crate::schema::grocery)]
+pub struct NewGrocery {
+    pub name: String,
+    pub amount: String,
 }
 
-#[derive(Debug, Queryable, Serialize)]
-pub struct Todo {
+#[derive(Debug, Queryable, Serialize, Selectable)]
+#[diesel(table_name = crate::schema::grocery)]
+pub struct Grocery {
     pub id: i32,
-    pub text: String,
+    pub name: String,
+    pub amount: String,
     pub done: bool,
-    pub finish_timestamp: Option<chrono::DateTime<chrono::Utc>>,
     pub timestamp: chrono::DateTime<chrono::Utc>,
 }

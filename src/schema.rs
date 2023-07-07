@@ -1,11 +1,11 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
-    todos (id) {
+    grocery (id) {
         id -> Int4,
-        text -> Text,
+        amount -> Text,
+        name -> Text,
         done -> Bool,
-        finish_timestamp -> Nullable<Timestamptz>,
         timestamp -> Timestamptz,
     }
 }
