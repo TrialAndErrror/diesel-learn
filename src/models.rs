@@ -3,7 +3,7 @@ use diesel::prelude::*;
 use serde::Serialize;
 
 #[derive(Insertable)]
-#[table_name = "grocery"]
+#[diesel(table_name = grocery)]
 pub struct NewGrocery {
     pub name: String,
     pub amount: String,
