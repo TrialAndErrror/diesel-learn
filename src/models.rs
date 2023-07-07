@@ -15,6 +15,5 @@ pub struct Grocery {
     pub name: String,
     pub amount: String,
     pub done: bool,
-    pub finish_timestamp: Option<chrono::DateTime<chrono::Utc>>,
     pub timestamp: chrono::DateTime<chrono::Utc>,
 }

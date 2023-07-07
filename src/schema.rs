@@ -6,7 +6,6 @@ diesel::table! {
         amount -> Text,
         name -> Text,
         done -> Bool,
-        finish_timestamp -> Nullable<Timestamptz>,
         timestamp -> Timestamptz,
     }
 }
