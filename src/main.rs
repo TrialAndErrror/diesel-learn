@@ -102,7 +102,7 @@ fn mark_complete(connection: &mut PgConnection) {
 
     let groceries = grocery::dsl::grocery
         .filter(
-            grocery::done.eq(unfinished)
+            grocery::done.eq(false)
                 .and(grocery::id.eq(grocery_id))
         );
 
